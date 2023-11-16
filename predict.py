@@ -10,7 +10,8 @@ file_paths = glob.glob("imgs/kadaster_scans/*/*.jpg")
 # load model
 model = models.load_any('./model_20.mlmodel')
 
-for fp in file_paths:
+for fpn, fp in enumerate(file_paths, 1):
+    print("{}/{}  -  {}".format(fpn, len(file_paths), fp))
     # load img
     im = Image.open(fp)
     # segment text
