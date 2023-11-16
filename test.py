@@ -1,31 +1,8 @@
-from PIL import Image, ImageDraw
-
-from kraken import binarization
-from kraken import pageseg
-
-# can be any supported image format and mode
-im = Image.open('./imgs/Leggerartikel_DVT00_7040_REEKS3.jpg')
-bw_im = binarization.nlbin(im)
-
-seg = pageseg.segment(bw_im)
-
-draw = ImageDraw.Draw(im)
-
-line_color = (255, 0, 0)
-line_width = 2
-
-for box in seg["boxes"]:
-    box_coordinates = [(box[0], box[1]), (box[2], box[3])]
-    draw.rectangle(box_coordinates, outline="red", width=line_width)
-
-im.show()
+from PIL import Image, ImageDraw, ImageFont
+from kraken import blla, rpred
+from kraken.lib import models
 
 # try baseline segmentation
-
-from kraken import blla
-from kraken.lib import vgsl
-from kraken import serialization
-
 im = Image.open('./imgs/Leggerartikel_DVT00_7040_REEKS3.jpg')
 baseline_seg = blla.segment(im)
 
@@ -38,6 +15,20 @@ for l in baseline_seg["lines"]:
     bnd = [tuple(b) for b in l["boundary"]]
     draw.polygon(bnd, outline="red", fill=None)
 
-
 im.show()
-        
+
+# refresh image, load model and predict text
+im = Image.open('./imgs/Leggerartikel_DVT00_7040_REEKS3.jpg')
+model = models.load_any('./model_20.mlmodel')
+pred_it = rpred.rpred(model, im, baseline_seg)
+
+new_im = Image.new("RGB", (im.width, im.height), "white")
+draw = ImageDraw.Draw(new_im)
+font = ImageFont.truetype("/Library/Fonts/Arial Unicode.ttf", 30)
+
+for record in pred_it:
+    print(record)
+    for pn, p in enumerate(record.prediction, 0):
+        draw.text(tuple(record.cuts[pn][0]), p, font=font, fill="black")
+
+new_im.show()
