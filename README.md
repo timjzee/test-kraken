@@ -5,7 +5,7 @@ Very little documentation about training using the API, so I used the cli:
 First create a binary training file
 ```bash
 result=$(ls /vol/tensusers/timzee/kraken/trainingfiles/*.xml)
-ketos compile --workers 30 -f page -o dataset_large.arrow $result
+ketos compile --workers 10 -f page -o dataset_large.arrow $result
 ```
 
 Then train the network using recommended parameter settings:
